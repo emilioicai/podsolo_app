@@ -1,6 +1,5 @@
 import React from "react";
 import {
-  StyleSheet,
   View,
   Image,
   Text,
@@ -8,20 +7,17 @@ import {
   TouchableOpacity
 } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
-import { getEpisodes } from "../api";
-import AudioCard from "../Components/AudioCard";
+import { AudioCard } from "../../Components";
+import styles from "./PodcastItemScreenStyle"
+import {getTopPodcastForCountry, getEpisodes} from "../../Ducks/podcast";
 
-export default class PodcastItem extends React.Component {
+import {connect} from "react-redux";
+
+ class PodcastItemScreen extends React.Component {
   state = {
-    episodes: false,
     episodePlaying: null
   };
 
-  data = () => {
-    const { navigation } = this.props;
-    const data = navigation.getParam("data", {});
-    return data;
-  };
   static navigationOptions = ({ navigation }) => {
     const data = navigation.getParam("data", { artistName: "" });
     return {
@@ -33,29 +29,18 @@ export default class PodcastItem extends React.Component {
     };
   };
 
-  componentDidMount = () => {
-    const { navigation } = this.props;
-    const data = navigation.getParam("data", {});
-    this.setState({ data });
-    getEpisodes(data.id).then(episodes => {
-      this.setState({ episodes });
-    });
-  };
-
   renderContent = () => {
-    const { navigation } = this.props;
-
-    return (
+      return (
       <View>
         <LinearGradient
           colors={["#3a6186", "#89253e"]}
           style={{ height: "100%" }}
         >
-          {this.state.episodes &&
-            this.state.episodes.length > 0 &&
+          {this.props.episodes &&
+            this.props.episodes.length > 0 &&
             this.renderEpisodeList()}
           <AudioCard
-            episode={this.state.episodePlaying || this.state.episodes[0]}
+            episode={this.state.episodePlaying || this.props.episodes[0]}
           />
         </LinearGradient>
       </View>
@@ -63,7 +48,7 @@ export default class PodcastItem extends React.Component {
   };
 
   renderPodcastTitle = () => {
-    const data = this.props.navigation.getParam("data", {});
+    const data = this.props.selectedPodcast;
     return (
       <View>
         <View style={styles.imageContainer}>
@@ -74,10 +59,10 @@ export default class PodcastItem extends React.Component {
           />
         </View>
         <View style={styles.infoContainer}>
-          <Text style={styles.infoName}>{data.name}</Text>
-          {this.state.episodes && this.state.episodes.length > 0 && (
+          <Text  style={styles.infoName}>{data.name}</Text>
+          {this.props.episodes && this.props.episodes.length > 0 && (
             <Text style={styles.infoEpisodes}>{`${
-              this.state.episodes.length
+              this.props.episodes.length
             } Episodes`}</Text>
           )}
         </View>
@@ -90,7 +75,7 @@ export default class PodcastItem extends React.Component {
       <FlatList
         ListHeaderComponent={this.renderPodcastTitle()}
         style={{ marginBottom: 100 }}
-        data={this.state.episodes.map((item, i) => ({
+        data={this.props.episodes.map((item, i) => ({
           ...item,
           key: "key" + i
         }))}
@@ -126,53 +111,23 @@ export default class PodcastItem extends React.Component {
     return (
       <View style={styles.container}>
         {this.renderContent()}
-        {/* <Text>{data.name}</Text> */}
       </View>
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1
-  },
-  imageContainer: {
-    height: 192,
-    marginTop: 20,
-    borderRadius: 4,
-    overflow: "hidden"
-  },
-  infoContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    height: 88
-  },
-  playContainer: {
-    height: 100
-  },
-  infoName: {
-    marginTop: 20,
-    marginBottom: 10,
-    fontSize: 20,
-    fontWeight: "bold",
-    textAlign: "center",
-    color: "white",
-    textShadowColor: "rgba(0, 0, 0, 0.75)",
-    textShadowOffset: { width: -1, height: 1 },
-    textShadowRadius: 10
-  },
-  infoArtistName: {
-    color: "#ffffff",
-    marginBottom: 10,
-    fontSize: 17,
-    fontWeight: "bold"
-  },
-  infoEpisodes: {
-    fontSize: 17,
-    color: "#ffff99"
-  }
-  // playContainer: {
-  //   flex: 1,
-  //   flexDirection: "row"
-  // }
+const mapStateToProps = state => ({
+    topPodcasts: state.podcast.topPodcasts,
+    episodes:state.podcast.episodes,
+    selectedPodcast: state.podcast.selectedPodcast
 });
+
+const mapDispatchToProps = dispatch => ({
+    getTopPodcastForCountry:(country)=> dispatch(getTopPodcastForCountry(country)),
+    getEpisodes: (podcastId)=> dispatch(getEpisodes(podcastId))
+
+});
+
+export default connect(mapStateToProps,mapDispatchToProps)(PodcastItemScreen)
+
+
