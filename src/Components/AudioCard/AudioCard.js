@@ -2,15 +2,16 @@ import React from "react";
 import {
   View,
   Text,
-  StyleSheet,
   Image,
-  TouchableHighlight,
   TouchableOpacity,
   ActivityIndicator,
   Slider
 } from "react-native";
+import styles from "./AudioCardStyle"
 import Video from "react-native-video";
-import { formatTime } from "../utils";
+import { formatTime } from "../../utils";
+import LinearGradient from "react-native-linear-gradient";
+
 
 export default class AudioCard extends React.Component {
   state = {
@@ -51,7 +52,11 @@ export default class AudioCard extends React.Component {
 
   render() {
     return (
-      <View style={styles.container}>
+
+        <LinearGradient
+            colors={[  "#30343f", "#3a6186"]}
+            style={styles.container}
+        >
         {this.props.episode &&
           this.props.episode.enclosures[0] &&
           this.props.episode.enclosures[0].url && (
@@ -72,19 +77,20 @@ export default class AudioCard extends React.Component {
           {this.state.paused && (
             <Image
               style={styles.button}
-              source={require("../assets/baseline_play_arrow_black_18dp.png")}
+              source={require("../../../assets/baseline_play_arrow_black_18dp.png")}
             />
           )}
           {!this.state.paused && (
             <Image
               style={styles.button}
-              source={require("../assets/baseline_pause_black_18dp.png")}
+              source={require("../../../assets/baseline_pause_black_18dp.png")}
             />
           )}
         </TouchableOpacity>
         <View style={styles.detailsWrapper}>
           {this.props.episode && (
-            <Text style={styles.title}>{this.props.episode.title}</Text>
+              <View style={{ width: "100%", marginHorizontal: 20}}><Text numberOfLines={1} style={styles.title}>{this.props.episode.title}</Text></View>
+
           )}
           <View style={{ width: "100%", marginHorizontal: 20 }}>
             <Slider
@@ -108,54 +114,13 @@ export default class AudioCard extends React.Component {
           <View style={styles.moreButton}>
             <Image
               style={styles.moreButtonIcon}
-              source={require("../assets/baseline_info_black_18dp.png")}
+              source={require("../../../assets/baseline_info_black_18dp.png")}
             />
           </View>
         </TouchableOpacity>
-      </View>
+        </LinearGradient>
+
     );
   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    position: "absolute",
-    bottom: 0,
-    flexDirection: "row",
-    paddingLeft: 20,
-    alignItems: "center",
-    paddingRight: 20,
-    paddingBottom: 20,
-    backgroundColor: "rgba(0, 0, 0, 0.3)",
-    height: 100,
-    width: "100%"
-  },
-  detailsWrapper: {
-    justifyContent: "center",
-    alignItems: "center",
-    flex: 1
-  },
-  title: {
-    fontSize: 16,
-    fontWeight: "bold",
-    color: "white",
-    textAlign: "center"
-  },
-  artist: {
-    color: "rgba(255, 255, 255, 0.72)",
-    fontSize: 12,
-    marginTop: 4
-  },
-  button: {
-    width: 40,
-    height: 40
-  },
-  moreButton: {
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  moreButtonIcon: {
-    height: 25,
-    width: 25
-  }
-});

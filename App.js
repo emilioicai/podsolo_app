@@ -1,12 +1,22 @@
 import React from "react";
-import HomeScreen from "./Containers/HomeScreen";
-import PodcastItem from "./Containers/PodcastItem";
+import { HomeScreen, PodcastItemScreen }from "./src/Containers";
 import { createStackNavigator, createAppContainer } from "react-navigation";
+
+import { createStore, applyMiddleware } from "redux";
+import combinedReducers from "./src/Ducks"
+import { Provider } from "react-redux";
+import thunk from 'redux-thunk'
+
+// Apply thunk middleware
+const middleware = applyMiddleware(thunk)
+
+//create store
+const store = createStore(combinedReducers,{}, middleware);
 
 const RootStack = createStackNavigator(
   {
     Home: HomeScreen,
-    PodcastDetails: PodcastItem
+    PodcastDetails: PodcastItemScreen
   },
   {
     initialRouteName: "Home"
@@ -16,6 +26,11 @@ const AppContainer = createAppContainer(RootStack);
 
 export default class App extends React.Component {
   render() {
-    return <AppContainer />;
+    return (
+        <Provider store={store}>
+            <AppContainer />
+        </Provider>
+
+        );
   }
 }
